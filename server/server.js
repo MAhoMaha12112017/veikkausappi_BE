@@ -1,6 +1,7 @@
 const express = require('express');
-var cors = require('cors')
-var bodyParser = require('body-parser')
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const knex = require('knex');
 
 const database = {
   matches: [{
@@ -15,12 +16,25 @@ const database = {
   }]
 }
 
+
+const db = knex({
+  client: 'pg',
+  connection: {
+    host : '127.0.0.1',
+    user : 'postgres',
+    password : 'kissanpierut66',
+    database : 'matchdata'
+  }
+});
+
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-  res.json('root');
+    db.select('*').from('matches')
+    .then(data => console.log(data));
+    res.json('root');
 });
 
 app.get('/matches', (req, res) => {
@@ -33,20 +47,35 @@ app.get('/match/:id', (req, res) => {
 });
 
 app.post('/match', (req, res) => {
-  const {league, round, homeTeam, awayTeam, homeGoals, awayGoals, homexG, awayxG} = req.body;
-  database.matches.push({
-    league,
-    round,
-    homeTeam,
-    awayTeam,
-    homeGoals,
-    awayGoals,
-    homexG,
-    awayxG
-  })
-  console.log(database);
-  res.json(database.matches[database.matches.length - 1]);
-})
+    const {league, round, homeTeam, awayTeam, homeGoals, awayGoals, homexG, awayxG} = req.body;
+
+    db('matches').insert({
+        league, 
+        round,
+        hometeam: homeTeam,
+        awayteam: awayTeam, 
+        homegoals: homeGoals, 
+        awaygoals: awayGoals, 
+        homexg: homexG, 
+        awayxg: awayxG 
+    })
+    .then(data => console.log(data));
+});
+  
+  
+//  database.matches.push({
+//    league,
+//    round,
+//    homeTeam,
+//    awayTeam,
+//    homeGoals,
+//    awayGoals,
+//    homexG,
+//    awayxG
+//  })
+//  console.log(database);
+//  res.json(database.matches[database.matches.length - 1]);
+//})
 
 app.listen(3001, () => {
   console.log('web server listening');
