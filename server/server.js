@@ -1,14 +1,13 @@
 const express = require('express');
-// var cors = require('cors')
+var cors = require('cors')
 var bodyParser = require('body-parser')
-// app.use(cors());
 
 const database = {
   matches: [{
-    league: '',
+    league: 'PREMIERLEAGUE',
     round: 0,
-    homeTeam: '',
-    awayTeam: '',
+    homeTeam: 'Arsenal',
+    awayTeam: 'Liverpool',
     homeGoals: 0,
     awayGoals: 0,
     homexG: 0,
@@ -17,10 +16,11 @@ const database = {
 }
 
 const app = express();
+app.use(cors());
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-  res.send('root');
+  res.json('root');
 });
 
 app.get('/matches', (req, res) => {
