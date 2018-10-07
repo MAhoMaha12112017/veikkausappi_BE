@@ -43,6 +43,10 @@ app.get('/matches', (req, res) => {
 
 app.get('/match/:id', (req, res) => {
   const id = req.params.id;
+
+  db.select('*').from('matches')
+  .where({  'id': id  })
+  .then(data => console.log(data));
   res.json(id);
 });
 
@@ -54,8 +58,8 @@ app.post('/match', (req, res) => {
         .insert({
         league, 
         round,
-        hometeam: homeTeam,
-        awayteam: awayTeam, 
+        hometeamabbr: homeTeam,
+        awayteamabbr: awayTeam, 
         homegoals: homeGoals, 
         awaygoals: awayGoals, 
         homexg: homexG, 
