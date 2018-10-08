@@ -3,18 +3,18 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const knex = require('knex');
 
-const database = {
-  matches: [{
-    league: 'PREMIERLEAGUE',
-    round: 0,
-    homeTeam: 'Arsenal',
-    awayTeam: 'Liverpool',
-    homeGoals: 0,
-    awayGoals: 0,
-    homexG: 0,
-    awayxG: 0
-  }]
-}
+//const database = {
+//  matches: [{
+//    league: 'PREMIERLEAGUE',
+//    round: 0,
+//    homeTeam: 'Arsenal',
+//    awayTeam: 'Liverpool',
+//    homeGoals: 0,
+//    awayGoals: 0,
+//    homexG: 0,
+//    awayxG: 0
+//  }]
+//}
 
 
 const db = knex({
@@ -32,13 +32,15 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-    db.select('*').from('matches')
-    .then(data => console.log(data));
     res.json('root');
 });
 
 app.get('/matches', (req, res) => {
-  res.json(database);
+    db.select('*').from('matches')
+    .then(data => {
+        console.log(data);
+        res.json(data);
+    });
 });
 
 app.get('/match/:id', (req, res) => {
@@ -74,21 +76,6 @@ app.post('/match', (req, res) => {
     })
     .catch((err) => res.status(400).json('tallentaminen tietokantaan ei onnistunut'));
 });
-  
-  
-//  database.matches.push({
-//    league,
-//    round,
-//    homeTeam,
-//    awayTeam,
-//    homeGoals,
-//    awayGoals,
-//    homexG,
-//    awayxG
-//  })
-//  console.log(database);
-//  res.json(database.matches[database.matches.length - 1]);
-//})
 
 app.listen(3001, () => {
   console.log('web server listening');
