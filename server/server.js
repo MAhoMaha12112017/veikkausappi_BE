@@ -3,20 +3,6 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const knex = require('knex');
 
-//const database = {
-//  matches: [{
-//    league: 'PREMIERLEAGUE',
-//    round: 0,
-//    homeTeam: 'Arsenal',
-//    awayTeam: 'Liverpool',
-//    homeGoals: 0,
-//    awayGoals: 0,
-//    homexG: 0,
-//    awayxG: 0
-//  }]
-//}
-
-
 const db = knex({
   client: 'pg',
   connection: {
@@ -48,8 +34,15 @@ app.get('/match/:id', (req, res) => {
 
   db.select('*').from('matches')
   .where({  'id': id  })
-  .then(data => console.log(data));
-  res.json(id);
+  .then(data => {
+        if (data[0].id) {
+            console.log(data[0]);
+            res.json(data[0]); 
+        } else {
+            res.json('mitään ei löytynyt');
+        }
+  })
+  .catch((err) => res.status(400).json('haku ei onnistunut'));
 });
 
 app.post('/match', (req, res) => {
@@ -76,6 +69,30 @@ app.post('/match', (req, res) => {
     })
     .catch((err) => res.status(400).json('tallentaminen tietokantaan ei onnistunut'));
 });
+
+app.post('/matchsearch', (req, res) => {
+    const {league, team1, team2, round, id} = req.body;
+
+    db.select('*').from('matches')
+//    .where({  'id': id  })
+//    .where({  'hometeamabbr': team1  })
+//    .where({  'awayteamabbr': team2  })
+//    .where({  'round': round  })
+    .where({  'league': league  })
+//        league, 
+//        round,
+//        hometeamabbr: homeTeam,
+//        awayteamabbr: awayTeam, 
+    .then((data) => { 
+        if(data[0].id) { // mieti tätä
+            res.json(data); 
+        } else {
+            res.json('haku ei onnistunut'); 
+        }
+    })
+    .catch((err) => res.status(400).json('haku tietokannasta ei onnistunut'));
+});
+
 
 app.listen(3001, () => {
   console.log('web server listening');
