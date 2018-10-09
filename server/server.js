@@ -72,22 +72,48 @@ app.post('/match', (req, res) => {
 
 app.post('/matchsearch', (req, res) => {
     const {league, team1, team2, round, id} = req.body;
+    
+    // query object
+    let queryObject = {};
+//    let queryObjectEdited = {};
+    if (id !== undefined) {
+        console.log('id',id);
+        queryObject = {...queryObject, 'id':id};
+    }
+    if (league !== undefined) {
+        console.log('league',league);
+        queryObject = {...queryObject, 'league':league};
+    }
+    if (round !== undefined) {
+        console.log('round',round);
+        queryObject = {...queryObject, 'round':round};
+    }
+    if (team1 !== undefined) {
+        console.log('team1',team1);
+        queryObject = {...queryObject, 'team1':team1};
+    }
+    if (team2 !== undefined) {
+        console.log('team2',team2);
+        queryObject = {...queryObject, 'team2':team2};
+    }
+    console.log(JSON.stringify(queryObject))
+    
 
     db.select('*').from('matches')
+      .where(queryObject)
+    
 //    .where({  'id': id  })
 //    .where({  'hometeamabbr': team1  })
 //    .where({  'awayteamabbr': team2  })
 //    .where({  'round': round  })
-    .where({  'league': league  })
-//        league, 
-//        round,
+//    .where({  'league': league  })
 //        hometeamabbr: homeTeam,
 //        awayteamabbr: awayTeam, 
     .then((data) => { 
         if(data[0].id) { // mieti tätä
             res.json(data); 
         } else {
-            res.json('haku ei onnistunut'); 
+            res.json('mitään ei löytynyt'); 
         }
     })
     .catch((err) => res.status(400).json('haku tietokannasta ei onnistunut'));
