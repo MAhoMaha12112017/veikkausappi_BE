@@ -71,12 +71,12 @@ app.post('/match', (req, res) => {
 });
 
 app.post('/matchsearch', (req, res) => {
-    const {league, team, team2, round, id} = req.body;
+    const {league, team, team1, team2, round, id, homeaway} = req.body;
     
     // query object
     let queryObject = {};
     let homeTeamQueryObject = {};
-    let awayTeamQueryObject = {};
+    let mirrorTeamQueryObject = {};
 
     if (league !== undefined) {
         console.log('league',league);
@@ -86,20 +86,33 @@ app.post('/matchsearch', (req, res) => {
         console.log('round',round);
         queryObject = {...queryObject, 'round':round};
     }
+    
     if (team !== undefined) {
         console.log('team ',team);
         homeTeamQueryObject = {...homeTeamQueryObject, 'hometeamabbr':team};
-        awayTeamQueryObject = {...awayTeamQueryObject, 'awayteamabbr':team};
+        mirrorTeamQueryObject = {...mirrorTeamQueryObject, 'awayteamabbr':team};
+    } else if (team1 !== undefined && team2 !== undefined) {
+        homeTeamQueryObject = {'hometeamabbr':team1, 'awayteamabbr':team2}; 
+        mirrorTeamQueryObject = {'hometeamabbr':team2, 'awayteamabbr':team1};
     }
 
     console.log('queryObject ', JSON.stringify(queryObject));
     console.log('homeTeamQueryObject ', JSON.stringify(homeTeamQueryObject));
-    console.log('awayTeamQueryObject ', JSON.stringify(awayTeamQueryObject));
+    console.log('mirrorTeamQueryObject ', JSON.stringify(mirrorTeamQueryObject));
+    
+    // home-away-check
+    if (homeaway === 'home') {
+        mirrorTeamQueryObject = {}
+    } else if (homeaway === 'away') {
+        homeTeamQueryObject = {}
+    }
 
     db.select('*').from('matches')
       .where(queryObject)
-      .andWhere(homeTeamQueryObject)
-      .orWhere(awayTeamQueryObject)
+      .andWhere(function() {
+        this.where(homeTeamQueryObject)
+        .orWhere(mirrorTeamQueryObject)
+    })
         
     .then((data) => { 
         if(data[0].id) { // mieti tätä
@@ -111,12 +124,45 @@ app.post('/matchsearch', (req, res) => {
     .catch((err) => res.status(400).json('haku tietokannasta ei onnistunut'));
 });
 
+//app.post('/teampairdata', (req, res) => {
+//    const {league, team1, team2} = req.body;
+//
+//    // query object
+//    let queryObject = {};
+//    let team1QueryObject = {};
+//    let team2QueryObject = {};
+//    console.log('team1 ',team1);
+//    console.log('team2 ',team2);
+//
+//    if (league !== undefined) {
+//        console.log('league',league);
+//        queryObject = {...queryObject, 'league':league};
+//    }
+//        
+//    team1QueryObject = {'hometeamabbr':team1, 'awayteamabbr':team2}; 
+//    team2QueryObject = {'hometeamabbr':team2, 'awayteamabbr':team1};
+//
+//    console.log('queryObject ', JSON.stringify(queryObject));
+//    console.log('team1QueryObject ', JSON.stringify(team1QueryObject));
+//    console.log('team2QueryObject ', JSON.stringify(team2QueryObject));
+//
+//    db.select('*').from('matches')
+//      .where(queryObject)
+//      .andWhere(function() {
+//        this.where(team1QueryObject)
+//        .orWhere(team2QueryObject)
+//      })
+//        
+//    .then((data) => { 
+//        if(data[0].id) { // mieti tätä
+//            res.json(data); 
+//        } else {
+//            res.json('mitään ei löytynyt'); 
+//        }
+//    })
+//    .catch((err) => res.status(400).json('haku tietokannasta ei onnistunut'));
+//});
 
 app.listen(3001, () => {
   console.log('web server listening');
 });
-
-// - sarjataulukko
-// - sarjataulukko käyttäen xgoals
-// - joukkuekohtainen data
-// - kahden joukkueen vertailudata
