@@ -71,15 +71,13 @@ app.post('/match', (req, res) => {
 });
 
 app.post('/matchsearch', (req, res) => {
-    const {league, team1, team2, round, id} = req.body;
+    const {league, team, team2, round, id} = req.body;
     
     // query object
     let queryObject = {};
-//    let queryObjectEdited = {};
-    if (id !== undefined) {
-        console.log('id',id);
-        queryObject = {...queryObject, 'id':id};
-    }
+    let homeTeamQueryObject = {};
+    let awayTeamQueryObject = {};
+
     if (league !== undefined) {
         console.log('league',league);
         queryObject = {...queryObject, 'league':league};
@@ -88,27 +86,21 @@ app.post('/matchsearch', (req, res) => {
         console.log('round',round);
         queryObject = {...queryObject, 'round':round};
     }
-    if (team1 !== undefined) {
-        console.log('team1',team1);
-        queryObject = {...queryObject, 'team1':team1};
+    if (team !== undefined) {
+        console.log('team ',team);
+        homeTeamQueryObject = {...homeTeamQueryObject, 'hometeamabbr':team};
+        awayTeamQueryObject = {...awayTeamQueryObject, 'awayteamabbr':team};
     }
-    if (team2 !== undefined) {
-        console.log('team2',team2);
-        queryObject = {...queryObject, 'team2':team2};
-    }
-    console.log(JSON.stringify(queryObject))
-    
+
+    console.log('queryObject ', JSON.stringify(queryObject));
+    console.log('homeTeamQueryObject ', JSON.stringify(homeTeamQueryObject));
+    console.log('awayTeamQueryObject ', JSON.stringify(awayTeamQueryObject));
 
     db.select('*').from('matches')
       .where(queryObject)
-    
-//    .where({  'id': id  })
-//    .where({  'hometeamabbr': team1  })
-//    .where({  'awayteamabbr': team2  })
-//    .where({  'round': round  })
-//    .where({  'league': league  })
-//        hometeamabbr: homeTeam,
-//        awayteamabbr: awayTeam, 
+      .andWhere(homeTeamQueryObject)
+      .orWhere(awayTeamQueryObject)
+        
     .then((data) => { 
         if(data[0].id) { // mieti tätä
             res.json(data); 
