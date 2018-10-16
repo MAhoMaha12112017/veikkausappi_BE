@@ -77,6 +77,11 @@ app.post('/matchsearch', (req, res) => {
     let queryObject = {};
     let homeTeamQueryObject = {};
     let mirrorTeamQueryObject = {};
+    
+    if (id !== undefined) {
+        console.log('id',id);
+        queryObject = {...queryObject, 'id':id};
+    }
 
     if (league !== undefined) {
         console.log('league',league);
