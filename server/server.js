@@ -96,6 +96,12 @@ app.post('/matchsearch', (req, res) => {
         console.log('team ',team);
         homeTeamQueryObject = {...homeTeamQueryObject, 'hometeamabbr':team};
         mirrorTeamQueryObject = {...mirrorTeamQueryObject, 'awayteamabbr':team};
+        // home-away-check
+        if (homeaway === 'home') {
+            mirrorTeamQueryObject = {}
+        } else if (homeaway === 'away') {
+            homeTeamQueryObject = {}
+        }
     } else if (team1 !== undefined && team2 !== undefined) { // data of 2 selected teams
         homeTeamQueryObject = {'hometeamabbr':team1, 'awayteamabbr':team2}; 
         mirrorTeamQueryObject = {'hometeamabbr':team2, 'awayteamabbr':team1};
@@ -104,20 +110,14 @@ app.post('/matchsearch', (req, res) => {
 //    console.log('queryObject ', JSON.stringify(queryObject));
 //    console.log('homeTeamQueryObject ', JSON.stringify(homeTeamQueryObject));
 //    console.log('mirrorTeamQueryObject ', JSON.stringify(mirrorTeamQueryObject));
-    
-    // home-away-check
-    if (homeaway === 'home') {
-        mirrorTeamQueryObject = {}
-    } else if (homeaway === 'away') {
-        homeTeamQueryObject = {}
-    }
 
     db.select('*').from('matches')
       .where(queryObject)
       .andWhere(function() {
         this.where(homeTeamQueryObject)
         .orWhere(mirrorTeamQueryObject)
-    })    
+      })
+      .orderBy('round', 'asc')
     .then((data) => { 
         if(data[0].id) { // mieti tätä
             res.json(data); 
