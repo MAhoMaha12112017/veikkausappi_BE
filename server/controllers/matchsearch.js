@@ -6,11 +6,11 @@ const matchSearch = (req, res, db) => {
     let homeTeamQueryObject = {};
     let mirrorTeamQueryObject = {};
     
+    // if id, league or round given, added as a search parameter
     if (id !== undefined) {
         console.log('id',id);
         queryObject = {...queryObject, 'id':id};
     }
-
     if (league !== undefined) {
         console.log('league',league);
         queryObject = {...queryObject, 'league':league};
