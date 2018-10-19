@@ -35,9 +35,9 @@ const matchSearch = (req, res, db) => {
         mirrorTeamQueryObject = {'hometeamabbr':team2, 'awayteamabbr':team1};
     }
 
-//    console.log('queryObject ', JSON.stringify(queryObject));
-//    console.log('homeTeamQueryObject ', JSON.stringify(homeTeamQueryObject));
-//    console.log('mirrorTeamQueryObject ', JSON.stringify(mirrorTeamQueryObject));
+    console.log('queryObject ', JSON.stringify(queryObject));
+    console.log('homeTeamQueryObject ', JSON.stringify(homeTeamQueryObject));
+    console.log('mirrorTeamQueryObject ', JSON.stringify(mirrorTeamQueryObject));
 
     db.select('*').from('matches')
       .where(queryObject)
