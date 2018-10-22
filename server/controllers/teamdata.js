@@ -1,86 +1,82 @@
 const teamData = (req, res, db) => {
-    res.json('deprecated');
-//    const {team, homeaway, equalsParam} = req.body;
-//    let homeTeamQueryObject = {};
-//    let awayTeamQueryObject = {};
-//    let queryObject = {};
-//    let returnObject = {};
-//    if (team !== undefined) { 
-//        console.log('team ',team);
-//        homeTeamQueryObject = {...homeTeamQueryObject, 'hometeamabbr':team};
-//        awayTeamQueryObject = {...awayTeamQueryObject, 'awayteamabbr':team};
-//        // home-away-check
-//        if (homeaway === 'home') {
-//            awayTeamQueryObject = {}
-//        } else if (homeaway === 'away') {
-//            homeTeamQueryObject = {}
-//        }
-//    }
-//    
-//    console.log('queryObject ', JSON.stringify(queryObject));
-//    console.log('homeTeamQueryObject ', JSON.stringify(homeTeamQueryObject));
-//    console.log('awayTeamQueryObject ', JSON.stringify(awayTeamQueryObject));
-//    
-//    db.select('*').from('matches')
-//      .where(queryObject)
-//      .andWhere(function() {
-//        this.where(homeTeamQueryObject)
-//        .orWhere(awayTeamQueryObject)
-//      })
-////      .orderBy('round', 'asc')
-//    .then((data) => { // vois hakea SQLllä, no tehdään ensin näin, ehkä voi dynaamisesti muokkailla..
-//        if(data[0].id) {
-//            
-//            // lasketaan maalikeskiarvot // returns a string!!
-//            const allHomeGoals = (data.reduce((sum, game) => sum + game.homegoals, 0)).toFixed(2);
-//            const avgHomeGoals = (allHomeGoals / data.length).toFixed(2); 
-//            console.log('allHomeGoals ', allHomeGoals);
-//            console.log('avgHomeGoals ', avgHomeGoals);
-//            
-//            // lasketaan xG-maalikeskiarvot // returns a string!!
-//            const allHomeXG = (data.reduce((sum, game) => sum + game.homexg, 0)).toFixed(2);
-//            const avgHomeXG = (allHomeXG / data.length).toFixed(2); 
-//            console.log('allHomeXG ', allHomeXG);
-//            console.log('avgHomeXG ', avgHomeXG);
-//            
-//            // lisätään objectiin
-//            returnObject = {
-//                allHomeGoals,
-//                avgHomeGoals,
-//                allHomeXG,
-//                avgHomeXG
-//            }
-//            
-//            // voitetut-hävityt-tasapelit. lasketaan voitot ja häviöt, loput tasapelejä
-//            
-//            const wins = data.filter((game) => {
-//                (game.homegoals > game.awaygoals && game.hometeamabbr === team) 
-//                || (game.homegoals < game.awaygoals && game.awayteamabbr === team)
-//            });
-//            const losses = data.filter((game) => game.homegoals < game.awaygoals);
-//            const draws = data.filter((game) => game.homegoals === game.awaygoals);
-//            
-//            // voitetut-hävityt-tasapelit xG (parametri)
-//            // käytetään paremetriä 0.2 --> pienempi kuin 0.2 ero tuottaa tasapelin
-//            let statForResult = 0.2; // <-- equalsParam
-//            
-//            // palautetaan data - muoto? 
-//            returnObject = {
-//                ...returnObject,
-//                wins: wins.length,
-//                losses: losses.length,
-//                draws: draws.length
-//            }
-//            
-//            
-//            res.json(returnObject); 
-//        } else {
-//            res.json('mitään ei löytynyt'); 
-//        }
-//    })
-//    .catch((err) => res.status(400).json('haku tietokannasta ei onnistunut'));
+    
+    const {team, equalsParam, homeaway} = req.body;
+    let returnObject = {};
+    let searchObject = {};
+    
+    console.log('team', team);
+    console.log('homeaway ', homeaway)
+    
+    if (homeaway === 'home') {
+        searchObject = {'hometeamabbr':team}
+    } else if (homeaway === 'away') {
+        searchObject = {'awayteamabbr':team}
+    }
+ 
+    db.select('*').from('matches')
+      .where(searchObject) //      .andWhere(function() { this.where(homeTeamQueryObject).orWhere(awayTeamQueryObject)})
+    .then((data) => { 
+        
+        console.log('data nyty', data);
+        if (data[0].id) {
+            let wins = [];
+            let losses = [];
+            console.log('data taasen ', data);
+            // maalikeskiarvot // returns a string!!
+            const AwayGoals = (data.reduce((sum, game) => sum + game.awaygoals, 0)).toFixed(2);
+            const avgAwayGoals = (AwayGoals / data.length).toFixed(2); 
+            const HomeGoals = (data.reduce((sum, game) => sum + game.homegoals, 0)).toFixed(2);
+            const avgHomeGoals = (HomeGoals / data.length).toFixed(2);
+            // xG-maalikeskiarvot // returns a string!!
+            const AwayXG = (data.reduce((sum, game) => sum + game.awayxg, 0)).toFixed(2);
+            const avgAwayXG = (AwayXG / data.length).toFixed(2); 
+            const HomeXG = (data.reduce((sum, game) => sum + game.homexg, 0)).toFixed(2);
+            const avgHomeXG = (HomeXG / data.length).toFixed(2); 
+            // voitetut-hävityt-tasapelit. lasketaan voitot ja häviöt, loput tasapelejä
+            
+            console.log('homeaway ', homeaway === 'away');
+            console.log('homeaway ', homeaway === 'home');
+            
+            if (homeaway === 'away') {
+                wins = data.filter(game => game.homegoals < game.awaygoals );
+                losses = data.filter(game => game.homegoals > game.awaygoals);
+                console.log('joo')
+            } else if (homeaway === 'home') {
+                console.log('homessa', homeaway === 'home');
+                wins = data.filter(game => { return (game.homegoals > game.awaygoals) } );
+                losses = data.filter(game => { return (game.homegoals < game.awaygoals) });
+                console.log('homessa 2');
+            }
+            
+            const draws = data.filter((game) => { return (game.homegoals === game.awaygoals) } );
+            console.log('data miksei näy ', data);
+            returnObject = {
+                AwayGoals,
+                avgAwayGoals,
+                AwayXG,
+                avgAwayXG, 
+                HomeGoals,
+                avgHomeGoals,
+                HomeXG,
+                avgHomeXG, 
+                wins: wins.length,
+                losses: losses.length,
+                draws: draws.length
+            }
+         console.log('returnObject ', returnObject)
+         res.json(returnObject);  
+            
+        } else {
+            res.json('mitään ei löytynyt'); 
+        }
+    })
+    .catch((err) => res.status(400).json('haku tietokannasta ei onnistunut'));
 };
 
 module.exports = {
     teamData
 };
+
+// voitetut-hävityt-tasapelit xG (parametri)
+// käytetään paremetriä 0.2 --> pienempi kuin 0.2 ero tuottaa tasapelin
+//            let statForResult = 0.2; // <-- equalsParam
