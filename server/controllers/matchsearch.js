@@ -20,17 +20,20 @@ const matchSearch = (req, res, db) => {
         queryObject = {...queryObject, 'round':round};
     }
     
-    if (team !== undefined) { // data of single team only
+    if (team !== undefined) { 
+        // data of single team only
         console.log('team ',team);
-        homeTeamQueryObject = {...homeTeamQueryObject, 'hometeamabbr':team};
-        mirrorTeamQueryObject = {...mirrorTeamQueryObject, 'awayteamabbr':team};
-        // home-away-check
+        
         if (homeaway === 'home') {
-            mirrorTeamQueryObject = {}
+            homeTeamQueryObject = {...homeTeamQueryObject, 'hometeamabbr':team};
         } else if (homeaway === 'away') {
-            homeTeamQueryObject = {}
+            mirrorTeamQueryObject = {...mirrorTeamQueryObject, 'awayteamabbr':team};
+        } else if (homeaway === 'all') {
+            homeTeamQueryObject = {...homeTeamQueryObject, 'hometeamabbr':team};
+            mirrorTeamQueryObject = {...mirrorTeamQueryObject, 'awayteamabbr':team};
         }
-    } else if (team1 !== undefined && team2 !== undefined) { // data of 2 selected teams
+    } else if (team1 !== undefined && team2 !== undefined) { 
+        // data of games between 2 selected teams
         homeTeamQueryObject = {'hometeamabbr':team1, 'awayteamabbr':team2}; 
         mirrorTeamQueryObject = {'hometeamabbr':team2, 'awayteamabbr':team1};
     }
