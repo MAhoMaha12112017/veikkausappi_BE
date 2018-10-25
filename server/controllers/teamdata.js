@@ -7,6 +7,7 @@ const teamData = (req, res, db) => {
     console.log('team', team);
     console.log('homeaway ', homeaway)
     
+    // hakuobjektiin joko kotiottelut tai vierasottelut
     if (homeaway === 'home') {
         searchObject = {'hometeamabbr':team}
     } else if (homeaway === 'away') {
@@ -16,8 +17,6 @@ const teamData = (req, res, db) => {
     db.select('*').from('matches')
       .where(searchObject) //      .andWhere(function() { this.where(homeTeamQueryObject).orWhere(awayTeamQueryObject)})
     .then((data) => { 
-        
-        console.log('data nyty', data);
         if (data[0].id) {
             let wins = [];
             let losses = [];
@@ -32,24 +31,17 @@ const teamData = (req, res, db) => {
             const avgAwayXG = (AwayXG / data.length).toFixed(2); 
             const HomeXG = (data.reduce((sum, game) => sum + game.homexg, 0)).toFixed(2);
             const avgHomeXG = (HomeXG / data.length).toFixed(2); 
+            
             // voitetut-hävityt-tasapelit. lasketaan voitot ja häviöt, loput tasapelejä
-            
-            console.log('homeaway ', homeaway === 'away');
-            console.log('homeaway ', homeaway === 'home');
-            
             if (homeaway === 'away') {
                 wins = data.filter(game => game.homegoals < game.awaygoals );
                 losses = data.filter(game => game.homegoals > game.awaygoals);
-                console.log('joo')
             } else if (homeaway === 'home') {
-                console.log('homessa', homeaway === 'home');
                 wins = data.filter(game => { return (game.homegoals > game.awaygoals) } );
                 losses = data.filter(game => { return (game.homegoals < game.awaygoals) });
-                console.log('homessa 2');
             }
             
             const draws = data.filter((game) => { return (game.homegoals === game.awaygoals) } );
-            console.log('data miksei näy ', data);
             returnObject = {
                 AwayGoals,
                 avgAwayGoals,

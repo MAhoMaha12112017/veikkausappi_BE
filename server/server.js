@@ -7,8 +7,8 @@ const matchDataById = require('./controllers/matchdatabyid');
 const saveMatch = require('./controllers/savematch');
 const matchSearch = require('./controllers/matchsearch');
 const teamData = require('./controllers/teamdata');
-const teamHomeData = require('./controllers/teamhomedata');
-const teamAwayData = require('./controllers/teamawaydata');
+const teamHomeData = require('./controllers/teamhomedata'); // deprecated
+const teamAwayData = require('./controllers/teamawaydata'); // deprecated
 
 const db = knex({
   client: 'pg',
