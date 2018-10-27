@@ -1,5 +1,6 @@
 const saveMatch = (req, res, db) => {
     const {league, round, homeTeam, awayTeam, homeGoals, awayGoals, homexG, awayxG} = req.body;
+    console.log('savematch ');
 
     db('matches')
         .returning('*')
